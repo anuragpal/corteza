@@ -620,14 +620,32 @@
     <b-modal
       v-model="showIconModal"
       :title="$t('icon.configure')"
-      :ok-title="$t('label.saveAndClose')"
       size="lg"
       label-class="text-primary"
-      cancel-variant="link"
       no-fade
-      @close="closeIconModal"
-      @ok="saveIconModal"
     >
+      <template #modal-footer>
+        <b-button
+          variant="link"
+          class="text-primary"
+          @click="closeIconModal"
+        >
+          {{ $t('general:label.cancel') }}
+        </b-button>
+        <b-button
+          :disabled="selectedAttachmentID"
+          variant="danger"
+          @click="deleteIcon"
+        >
+          {{ $t('general:label.delete') }}
+        </b-button>
+        <b-button
+          variant="primary"
+          @click="saveIconModal"
+        >
+          {{ $t('general:label.saveAndClose') }}
+        </b-button>
+      </template>
       <b-form-group
         :label="$t('icon.upload')"
         label-class="text-primary"
@@ -1160,6 +1178,13 @@ export default {
 
     layoutHandleState (layoutHandle) {
       return handle.handleState(layoutHandle)
+    },
+
+    deleteIcon () {
+      if (this.selectedAttachmentID) {
+        // study altered logic
+        // pass ID or whatever BE needs to del icon
+      }
     },
   },
 }
