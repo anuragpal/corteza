@@ -286,6 +286,14 @@ export default {
     },
   },
 
+  beforeRouteUpdate (to, from, next) {
+    this.handleCancelRequest(next)
+  },
+
+  beforeRouteLeave (to, from, next) {
+    this.handleCancelRequest(next)
+  },
+
   methods: {
     ...mapActions({
       createPage: 'page/create',
@@ -339,6 +347,11 @@ export default {
           this.toastSuccess(this.$t('notification:module.deleted'))
           this.filterList()
         })
+    },
+
+    handleCancelRequest (next) {
+      this.$root.$emit('cancel-record-list-request')
+      next()
     },
   },
 }

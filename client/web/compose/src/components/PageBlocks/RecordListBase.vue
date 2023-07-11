@@ -722,6 +722,7 @@
   </wrap>
 </template>
 <script>
+import axios from 'axios'
 import { debounce, isEqual } from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 import base from './base'
@@ -828,6 +829,8 @@ export default {
       currentCustomPresetFilter: undefined,
       showCustomPresetFilterModal: false,
       selectedAllRecords: false,
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -1056,9 +1059,15 @@ export default {
   },
 
   created () {
+    console.log('this.checkUnsavedChanges(next, to)')
+
     if (!this.inlineEditing) {
       this.refreshBlock(this.refresh, false, true)
     }
+
+    this.$root.$on('cancel-record-list-request', () => {
+      this.cancelRecordListRequest()
+    })
   },
 
   methods: {
@@ -1583,7 +1592,7 @@ export default {
       // Filter's out deleted records when filter.deleted is 2, and undeleted records when filter.deleted is 0
       this.showingDeletedRecords ? this.filter.deleted = 2 : this.filter.deleted = 0
 
-      return this.$ComposeAPI.recordList({ ...this.filter, moduleID, namespaceID, query, ...paginationOptions })
+      return this.$ComposeAPI.recordList({ ...this.filter, moduleID, namespaceID, query, ...paginationOptions }, { cancelToken: this.cancelTokenSource.token })
         .then(({ set, filter }) => {
           const records = set.map(r => new compose.Record(r, this.recordListModule))
 
@@ -1629,7 +1638,11 @@ export default {
             this.items = records.map(r => this.wrapRecord(r))
           })
         })
-        .catch(this.toastErrorHandler(this.$t('notification:record.listLoadFailed')))
+        .catch((e) => {
+          if (!axios.isCancel(e)) {
+            this.toastErrorHandler(this.$t('notification:record.listLoadFailed'))(e)
+          }
+        })
         .finally(() => {
           this.processing = false
         })
@@ -1836,6 +1849,10 @@ export default {
       if (!roles.length) return true
 
       return roles.some(roleID => this.authUserRoles.includes(roleID))
+    },
+
+    cancelRecordListRequest () {
+      this.cancelTokenSource.cancel('cancel-record-list-request')
     },
   },
 }
