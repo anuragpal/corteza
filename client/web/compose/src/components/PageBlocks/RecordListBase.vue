@@ -1059,8 +1059,6 @@ export default {
   },
 
   created () {
-    console.log('this.checkUnsavedChanges(next, to)')
-
     if (!this.inlineEditing) {
       this.refreshBlock(this.refresh, false, true)
     }
