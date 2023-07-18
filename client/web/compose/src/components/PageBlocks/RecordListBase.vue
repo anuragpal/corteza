@@ -1062,10 +1062,6 @@ export default {
     if (!this.inlineEditing) {
       this.refreshBlock(this.refresh, false, true)
     }
-
-    this.$root.$on('cancel-record-list-request', () => {
-      this.cancelRecordListRequest()
-    })
   },
 
   methods: {
@@ -1099,6 +1095,7 @@ export default {
       this.$root.$off(`page-block:validate:${this.uniqueID}`)
       this.$root.$off(`drill-down-recordList:${this.uniqueID}`)
       this.$root.$off(`refetch-non-record-blocks:${this.page.pageID}`)
+      this.cancelRecordListRequest()
     },
 
     onFilter (filter = []) {
@@ -1850,7 +1847,7 @@ export default {
     },
 
     cancelRecordListRequest () {
-      this.cancelTokenSource.cancel('cancel-record-list-request')
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
     },
   },
 }

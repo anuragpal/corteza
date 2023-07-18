@@ -286,14 +286,6 @@ export default {
     },
   },
 
-  beforeRouteUpdate (to, from, next) {
-    this.handleCancelRequest(next)
-  },
-
-  beforeRouteLeave (to, from, next) {
-    this.handleCancelRequest(next)
-  },
-
   methods: {
     ...mapActions({
       createPage: 'page/create',
