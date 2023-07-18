@@ -340,11 +340,6 @@ export default {
           this.filterList()
         })
     },
-
-    handleCancelRequest (next) {
-      this.$root.$emit('cancel-record-list-request')
-      next()
-    },
   },
 }
 </script>
