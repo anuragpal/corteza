@@ -23,6 +23,7 @@
 <script>
 import base from './base'
 import AutomationButtons from './Shared/AutomationButtons'
+import axios from 'axios'
 
 export default {
   components: { AutomationButtons },
@@ -40,6 +41,8 @@ export default {
       processing: false,
 
       automationScripts: [],
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -49,19 +52,33 @@ export default {
     },
   },
 
+  beforeDestroy () {
+    this.abortRequests()
+  },
+
   created () {
     if (this.$UIHooks.set && !!this.$UIHooks.set.length) {
       return
     }
 
     this.processing = true
-    return this.$ComposeAPI.automationList({ eventTypes: ['onManual'], excludeInvalid: true })
+    return this.$ComposeAPI
+      .automationList(
+        { eventTypes: ['onManual'], excludeInvalid: true },
+        { cancelToken: this.cancelTokenSource.token },
+      )
       .then(({ set = [] }) => {
         this.automationScripts = set
       })
       .finally(() => {
         this.processing = false
       })
+  },
+
+  methods: {
+    abortRequests () {
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
+    },
   },
 }
 </script>

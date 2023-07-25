@@ -41,6 +41,7 @@
 import base from './base'
 import numeral from 'numeral'
 import moment from 'moment'
+import axios from 'axios'
 import { debounce } from 'lodash'
 import MetricItem from './Metric/Item'
 import { NoID, compose } from '@cortezaproject/corteza-js'
@@ -66,6 +67,8 @@ export default {
     return {
       processing: false,
       reports: [],
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -94,6 +97,7 @@ export default {
   beforeDestroy () {
     this.$root.$off('metric.update', this.refresh)
     this.$root.$off(`refetch-non-record-blocks:${this.page.pageID}`)
+    this.abortRequests()
   },
 
   created () {
@@ -135,7 +139,7 @@ export default {
       try {
         const rtr = []
         const namespaceID = this.namespace.namespaceID
-        const reporter = r => this.$ComposeAPI.recordReport({ ...r, namespaceID })
+        const reporter = r => this.$ComposeAPI.recordReport({ ...r, namespaceID }, { cancelToken: this.cancelTokenSource.token })
 
         for (const m of this.options.metrics) {
           if (m.moduleID) {
@@ -203,6 +207,10 @@ export default {
         })
         this.$root.$emit('magnify-page-block', { block })
       }
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
     },
   },
 }

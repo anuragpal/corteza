@@ -24,6 +24,7 @@
   </wrap>
 </template>
 <script>
+import axios from 'axios'
 import base from '../base'
 import { system, reporter, NoID } from '@cortezaproject/corteza-js'
 import DisplayElement from './DisplayElements'
@@ -42,6 +43,7 @@ export default {
       processing: false,
       report: undefined,
       displayElement: undefined,
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -57,6 +59,10 @@ export default {
     },
   },
 
+  beforeDestroy () {
+    this.abortRequests()
+  },
+
   created () {
     this.refreshBlock(this.refresh)
   },
@@ -65,12 +71,17 @@ export default {
     fetchReport (reportID) {
       this.processing = true
 
-      return this.$SystemAPI.reportRead({ reportID })
+      return this.$SystemAPI
+        .reportRead({ reportID }, { cancelToken: this.cancelTokenSource.token })
         .then(report => {
           this.report = new system.Report(report)
 
           return this.getDataframes()
-        }).catch(this.toastErrorHandler(this.$t('notification:report.fetchFailed')))
+        }).catch((e) => {
+          if (!axios.isCancel(e)) {
+            this.toastErrorHandler(this.$t('notification:report.fetchFailed'))(e)
+          }
+        })
         .finally(() => {
           this.processing = false
         })
@@ -131,6 +142,10 @@ export default {
       }
 
       return scenarioDefinition
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`,)
     },
 
     refresh () {

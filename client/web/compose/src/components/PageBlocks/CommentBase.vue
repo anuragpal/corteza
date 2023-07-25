@@ -88,6 +88,7 @@
 </template>
 <script>
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 import base from './base'
 import FieldViewer from 'corteza-webapp-compose/src/components/ModuleFields/Viewer'
 import users from 'corteza-webapp-compose/src/mixins/users'
@@ -123,6 +124,8 @@ export default {
         title: '',
         content: '',
       },
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -215,6 +218,10 @@ export default {
     this.refreshBlock(this.refresh)
   },
 
+  beforeDestroy () {
+    this.abortRequests()
+  },
+
   methods: {
     getFormattedDate (date) {
       return fmt.fullDateTime(date)
@@ -227,7 +234,7 @@ export default {
 
     refresh () {
       if (!this.options.moduleID) {
-      // Make sure block is properly configured
+        // Make sure block is properly configured
         throw Error(this.$t('record.moduleOrPageNotSet'))
       }
       if (this.roModule && this.contentField) {
@@ -272,11 +279,11 @@ export default {
         record.moduleID = this.options.moduleID
         record.namespaceID = this.roModule.namespaceID
         this.$ComposeAPI.recordCreate(record).then(rec => {
-          // clean the input and reload data
-          this.newRecord.title = ''
-          this.newRecord.content = ''
-          this.refresh()
-        })
+            // clean the input and reload data
+            this.newRecord.title = ''
+            this.newRecord.content = ''
+            this.refresh()
+          })
           .catch(this.toastErrorHandler(this.$t('notification:record.createFailed')))
       }
     },
@@ -335,8 +342,14 @@ export default {
       }
 
       return this.$ComposeAPI
-        .recordList(params)
-        .then(({ set }) => set.map(r => Object.freeze(new compose.Record(module, r))))
+        .recordList(params, { cancelToken: this.cancelTokenSource.token })
+        .then(({ set }) =>
+          set.map(r => Object.freeze(new compose.Record(module, r))),
+        )
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
     },
   },
 }

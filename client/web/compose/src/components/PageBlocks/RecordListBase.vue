@@ -1095,7 +1095,7 @@ export default {
       this.$root.$off(`page-block:validate:${this.uniqueID}`)
       this.$root.$off(`drill-down-recordList:${this.uniqueID}`)
       this.$root.$off(`refetch-non-record-blocks:${this.page.pageID}`)
-      this.cancelRecordListRequest()
+      this.abortRequests()
     },
 
     onFilter (filter = []) {
@@ -1846,7 +1846,7 @@ export default {
       return roles.some(roleID => this.authUserRoles.includes(roleID))
     },
 
-    cancelRecordListRequest () {
+    abortRequests () {
       this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
     },
   },

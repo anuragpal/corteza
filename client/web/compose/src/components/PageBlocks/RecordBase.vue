@@ -99,6 +99,7 @@
 <script>
 import { compose, NoID } from '@cortezaproject/corteza-js'
 import { mapActions } from 'vuex'
+import axios from 'axios'
 import base from './base'
 import FieldViewer from 'corteza-webapp-compose/src/components/ModuleFields/Viewer'
 import BulkEditModal from 'corteza-webapp-compose/src/components/Public/Record/BulkEdit'
@@ -135,6 +136,8 @@ export default {
         recordIDs: [],
         initialRecord: {},
       },
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -210,6 +213,10 @@ export default {
     },
   },
 
+  beforeDestroy () {
+    this.abortRequests()
+  },
+
   methods: {
     ...mapActions({
       findModuleByID: 'module/findByID',
@@ -223,12 +230,12 @@ export default {
 
       this.findModuleByID({ namespace: this.namespace.namespaceID, moduleID: this.options.referenceModuleID })
         .then(module => {
-          this.referenceModule = new compose.Module({ ...module })
+        this.referenceModule = new compose.Module({ ...module })
 
-          if (this.options.referenceField) {
-            this.loadRecord(this.referenceModule)
-          }
-        })
+        if (this.options.referenceField) {
+          this.loadRecord(this.referenceModule)
+        }
+      })
     },
 
     loadRecord (module) {
@@ -250,13 +257,19 @@ export default {
         return
       }
 
-      this.$ComposeAPI.recordRead({ namespaceID, moduleID, recordID })
+      this.$ComposeAPI
+        .recordRead(
+          { namespaceID, moduleID, recordID },
+          { cancelToken: this.cancelTokenSource.token },
+        )
         .then(record => {
           this.referenceRecord = new compose.Record(this.fieldModule, { ...record })
         })
-        .catch((e) => {
-          this.referenceRecord = new compose.Record(this.fieldModule, {})
-          this.toastErrorHandler(this.$t('notification:record.loadFailed'))(e)
+        .catch(e => {
+          if (!axios.isCancel(e)) {
+            this.referenceRecord = new compose.Record(this.fieldModule, {})
+            this.toastErrorHandler(this.$t('notification:record.loadFailed'))(e)
+          }
         })
     },
 
@@ -302,6 +315,10 @@ export default {
       }
 
       return !expressions.value
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`,)
     },
   },
 }

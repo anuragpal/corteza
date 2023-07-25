@@ -33,16 +33,14 @@
             <font-awesome-icon :icon="['fas', 'angle-right']" />
           </b-btn>
         </div>
-        <b-row
-          no-gutters
-        >
+        <b-row no-gutters>
           <b-col
             cols="12"
             sm="10"
             md="9"
             lg="8"
             xl="9"
-            class="d-flex justify-content-sm-start justify-content-center flex-wrap"
+            class="flex-wrap d-flex justify-content-sm-start justify-content-center"
           >
             <b-btn
               v-for="view in views"
@@ -102,6 +100,7 @@
 <script>
 import moment from 'moment'
 import { mapGetters, mapActions } from 'vuex'
+import axios from 'axios'
 import base from './base'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -158,6 +157,8 @@ export default {
       },
 
       refreshing: false,
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -228,6 +229,10 @@ export default {
   created () {
     this.changeLocale(this.currentLanguage)
     this.refreshBlock(this.refresh)
+  },
+
+  beforeDestroy () {
+    this.abortRequests()
   },
 
   methods: {
@@ -306,7 +311,7 @@ export default {
                   })
                 }
 
-                return compose.PageBlockCalendar.RecordFeed(this.$ComposeAPI, module, this.namespace, ff, this.loaded)
+                return compose.PageBlockCalendar.RecordFeed(this.$ComposeAPI, module, this.namespace, ff, this.loaded, { cancelToken: this.cancelTokenSource.token })
                   .then(events => {
                     events = this.setEventColors(events, ff)
                     this.events.push(...events)
@@ -318,15 +323,15 @@ export default {
                 events = this.setEventColors(events, feed)
                 this.events.push(...events)
               })
-        }
-      }))
-        .finally(() => {
-          this.processing = false
-          this.refreshing = false
-          setTimeout(() => {
-            this.updateSize()
-          })
+          }
+        }),
+      ).finally(() => {
+        this.processing = false
+        this.refreshing = false
+        setTimeout(() => {
+          this.updateSize()
         })
+      })
     },
 
     /**
@@ -376,6 +381,10 @@ export default {
         event.backgroundColor = feed.options.color
         return event
       })
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
     },
   },
 }
