@@ -27,15 +27,10 @@ interface Range {
   start: Date;
 }
 
-function getRecordValue (
-  record: Readonly<Record>,
-  field: string,
-): (string | undefined)[] {
+function getRecordValue (record: Readonly<Record>, field: string): (string|undefined)[] {
   const ef = record.module.fields.find(({ name }) => name === field)
   if (ef) {
-    return ef.isMulti
-      ? (record.values[field] as string[])
-      : [(record.values[field] as string) || undefined]
+    return ef.isMulti ? record.values[field] as string[] : [(record.values[field] as string) || undefined]
   } else {
     switch (field) {
       case 'recordID':
@@ -67,18 +62,13 @@ function expandRecord (record: Readonly<Record>, feed: Feed): Event[] {
 
   const starts = getRecordValue(record, feed.startField)
   const ends = getRecordValue(record, feed.endField)
-  const title =
-    getRecordValue(record, feed.titleField).shift() || record.recordID
+  const title = getRecordValue(record, feed.titleField).shift() || record.recordID
 
   // Make sure ends is at least as long as starts, to avoid length checks
-  ends.push(
-    ...new Array(Math.max(starts.length - ends.length, 0)).fill(undefined),
-  )
+  ends.push(...(new Array(Math.max(starts.length - ends.length, 0)).fill(undefined)))
 
   const classNames = ['event', 'event-record']
-  const { backgroundColor, borderColor, isLight } = makeColors(
-    feed.options.color || defaultColor,
-  )
+  const { backgroundColor, borderColor, isLight } = makeColors(feed.options.color || defaultColor)
   if (isLight) {
     classNames.push('text-dark')
   } else {
@@ -132,14 +122,7 @@ function recordFeedFilter (r: Readonly<Record>, field: string): boolean {
  * @param {Object} range Current date range
  * @returns {Promise<Array>} Resolves to a set of FC events to display
  */
-export async function RecordFeed (
-  $ComposeAPI: ComposeAPI,
-  module: Module,
-  namespace: Namespace,
-  feed: Feed,
-  range: Range,
-  options = {},
-): Promise<Event[]> {
+export async function RecordFeed ($ComposeAPI: ComposeAPI, module: Module, namespace: Namespace, feed: Feed, range: Range, options = {}): Promise<Event[]> {
   // Params for record fetching
   const params = {
     namespaceID: namespace.namespaceID,
@@ -160,18 +143,15 @@ export async function RecordFeed (
     (set as Array<{ recordID: string }>)
 
       // Removes all duplicates
-      .filter(
-        ({ recordID }, index, set) =>
-          set.findIndex((r) => recordID === r.recordID) === index,
-      )
+      .filter(({ recordID }, index, set) => set.findIndex((r) => recordID === r.recordID) === index)
 
       // cast & freeze
-      .map((r) => Object.freeze(new Record(module, r)))
+      .map(r => Object.freeze(new Record(module, r)))
 
       // drop record w/o proper values
-      .filter((r) => recordFeedFilter(r, feed.startField))
+      .filter(r => recordFeedFilter(r, feed.startField))
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      .forEach((r) => events.push(...expandRecord(r, feed)))
+      .forEach(r => events.push(...expandRecord(r, feed)))
     return events
   })
 }

@@ -234,7 +234,7 @@ export default {
 
     refresh () {
       if (!this.options.moduleID) {
-        // Make sure block is properly configured
+      // Make sure block is properly configured
         throw Error(this.$t('record.moduleOrPageNotSet'))
       }
       if (this.roModule && this.contentField) {
@@ -279,11 +279,11 @@ export default {
         record.moduleID = this.options.moduleID
         record.namespaceID = this.roModule.namespaceID
         this.$ComposeAPI.recordCreate(record).then(rec => {
-            // clean the input and reload data
-            this.newRecord.title = ''
-            this.newRecord.content = ''
-            this.refresh()
-          })
+          // clean the input and reload data
+          this.newRecord.title = ''
+          this.newRecord.content = ''
+          this.refresh()
+        })
           .catch(this.toastErrorHandler(this.$t('notification:record.createFailed')))
       }
     },
@@ -343,9 +343,7 @@ export default {
 
       return this.$ComposeAPI
         .recordList(params, { cancelToken: this.cancelTokenSource.token })
-        .then(({ set }) =>
-          set.map(r => Object.freeze(new compose.Record(module, r))),
-        )
+        .then(({ set }) => set.map(r => Object.freeze(new compose.Record(module, r))))
     },
 
     abortRequests () {

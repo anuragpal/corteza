@@ -33,14 +33,16 @@
             <font-awesome-icon :icon="['fas', 'angle-right']" />
           </b-btn>
         </div>
-        <b-row no-gutters>
+        <b-row
+          no-gutters
+        >
           <b-col
             cols="12"
             sm="10"
             md="9"
             lg="8"
             xl="9"
-            class="flex-wrap d-flex justify-content-sm-start justify-content-center"
+            class="d-flex justify-content-sm-start justify-content-center flex-wrap"
           >
             <b-btn
               v-for="view in views"

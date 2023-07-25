@@ -230,12 +230,12 @@ export default {
 
       this.findModuleByID({ namespace: this.namespace.namespaceID, moduleID: this.options.referenceModuleID })
         .then(module => {
-        this.referenceModule = new compose.Module({ ...module })
+          this.referenceModule = new compose.Module({ ...module })
 
-        if (this.options.referenceField) {
-          this.loadRecord(this.referenceModule)
-        }
-      })
+          if (this.options.referenceField) {
+            this.loadRecord(this.referenceModule)
+          }
+        })
     },
 
     loadRecord (module) {
@@ -258,10 +258,7 @@ export default {
       }
 
       this.$ComposeAPI
-        .recordRead(
-          { namespaceID, moduleID, recordID },
-          { cancelToken: this.cancelTokenSource.token },
-        )
+        .recordRead({ namespaceID, moduleID, recordID }, { cancelToken: this.cancelTokenSource.token })
         .then(record => {
           this.referenceRecord = new compose.Record(this.fieldModule, { ...record })
         })
