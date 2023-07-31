@@ -11,13 +11,13 @@
         v-if="scenarioOptions.length"
         class="d-inline-block mr-2"
       >
-        <vue-select
+        <c-input-select
           v-model="scenarios.selected"
           :options="scenarioOptions"
           :get-option-key="getOptionKey"
           :placeholder="$t('pick-scenario')"
-          :calculate-position="calculateDropdownPosition"
-          class="bg-white rounded"
+          class="rounded"
+          style="min-width: 20vw;"
           @input="refreshReport()"
         />
       </div>
@@ -73,7 +73,6 @@
 import { system } from '@cortezaproject/corteza-js'
 import Grid from 'corteza-webapp-reporter/src/components/Report/Grid'
 import Block from 'corteza-webapp-reporter/src/components/Report/Blocks'
-import VueSelect from 'vue-select'
 
 export default {
   name: 'ReportView',
@@ -85,7 +84,6 @@ export default {
   components: {
     Grid,
     Block,
-    VueSelect,
   },
 
   data () {

@@ -18,6 +18,7 @@ import {
   RadarChart,
   FunnelChart,
 } from 'echarts/charts'
+
 import {
   TitleComponent,
   GridComponent,
@@ -50,3 +51,4 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('font-awesome-layers', FontAwesomeLayers)
 Vue.component('c-permissions-button', components.CPermissionsButton)
 Vue.component('c-input-confirm', components.CInputConfirm)
+Vue.component('c-input-select', components.CInputSelect)
