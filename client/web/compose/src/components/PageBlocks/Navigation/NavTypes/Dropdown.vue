@@ -118,7 +118,7 @@
         <b-button
           variant="primary"
           class="text-decoration-none"
-          @click="options.item.dropdown.items.push({ text: '', url: '', target: 'sameTab', delimiter: false })"
+          @click="options.item.dropdown.items.push({ text: '', url: '', target: 'sameTab' })"
         >
           <font-awesome-icon
             :icon="['fas', 'plus']"
