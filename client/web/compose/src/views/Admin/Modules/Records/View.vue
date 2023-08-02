@@ -100,6 +100,7 @@
 </template>
 
 <script>
+import { isEqual } from 'lodash'
 import { mapGetters } from 'vuex'
 import RecordToolbar from 'corteza-webapp-compose/src/components/Common/RecordToolbar'
 import users from 'corteza-webapp-compose/src/mixins/users'
@@ -221,6 +222,14 @@ export default {
     this.createBlocks()
   },
 
+  beforeRouteLeave (to, from, next) {
+    this.checkUnsavedChanges(next, to)
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    this.checkUnsavedChanges(next, to)
+  },
+
   methods: {
     createBlocks () {
       this.fields.forEach(f => {
@@ -241,6 +250,7 @@ export default {
           .recordRead({ namespaceID, moduleID, recordID })
           .then(record => {
             this.record = new compose.Record(module, record)
+            this.initialRecordState = this.record.clone()
           })
           .catch(this.toastErrorHandler(this.$t('notification:record.loadFailed')))
       }
@@ -274,6 +284,13 @@ export default {
       this.$router.push({
         params: { ...this.$route.params, recordID },
       })
+    },
+
+    checkUnsavedChanges (next, to) {
+      const recordValues = JSON.parse(JSON.stringify(this.record.values))
+      const initialRecordState = JSON.parse(JSON.stringify(this.initialRecordState.values))
+
+      next(!isEqual(recordValues, initialRecordState) ? window.confirm(this.$t('general:editor.unsavedChanges')) : true)
     },
   },
 }

@@ -13,6 +13,7 @@ export default {
       processingUndelete: false,
       processingSubmit: false,
       record: undefined,
+      initialRecordState: undefined,
       errors: new validator.Validated(),
     }
   },
@@ -144,6 +145,7 @@ export default {
         })
         .then(record => {
           this.record = new compose.Record(this.module, record)
+          this.initialRecordState = this.record.clone()
         })
         .then(() => this.dispatchUiEvent('afterFormSubmit', this.record, { $records: records }))
         .then(() => this.updatePrompts())
@@ -194,6 +196,7 @@ export default {
         })
         .then(record => {
           this.record = new compose.Record(this.module, record)
+          this.initialRecordState = this.record.clone()
         })
         .then(() => this.dispatchUiEvent('beforeFormSubmit', this.record))
         .then(() => this.updatePrompts())
@@ -296,6 +299,7 @@ export default {
           this.onModalHide()
           this.fields = []
           this.record = new compose.Record(this.module, {})
+          this.initialRecordState = this.record.clone()
           this.$emit('save')
         })
         .catch(this.toastErrorHandler(this.$t('notification:record.deleteBulkRecordUpdateFailed')))
