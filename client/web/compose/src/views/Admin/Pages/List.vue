@@ -143,9 +143,13 @@ export default {
     loadTree () {
       this.processing = true
       const { namespaceID } = this.namespace
-      this.$ComposeAPI.pageTree({ namespaceID }).then((tree) => {
+      this.$ComposeAPI.pageTree({ namespaceID }, { cancelToken: this.cancelTokenSource.token }).then((tree) => {
         this.tree = tree.map(p => new compose.Page(p))
-      }).catch(this.toastErrorHandler(this.$t('notification:page.loadFailed')))
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          this.toastErrorHandler(this.$t('notification:page.loadFailed'))(e)
+        }
+      })
         .finally(() => {
           this.processing = false
         })
