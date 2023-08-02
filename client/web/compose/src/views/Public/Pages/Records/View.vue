@@ -179,6 +179,7 @@ export default {
         prev: undefined,
         next: undefined,
       },
+
       cancelTokenSource: axios.CancelToken.source(),
     }
   },
