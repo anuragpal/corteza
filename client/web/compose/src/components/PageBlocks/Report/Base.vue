@@ -145,7 +145,7 @@ export default {
     },
 
     abortRequests () {
-      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`,)
+      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
     },
 
     refresh () {

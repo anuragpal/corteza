@@ -829,6 +829,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { isEqual } from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 import EditorToolbar from 'corteza-webapp-compose/src/components/Admin/EditorToolbar'
@@ -903,6 +904,8 @@ export default {
         on: this.$t('general:label.yes'),
         off: this.$t('general:label.no'),
       },
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -1060,6 +1063,10 @@ export default {
     this.checkUnsavedComposePage(next)
   },
 
+  beforeDestroy () {
+    this.abortRequests()
+  },
+
   created () {
     this.fetchRoles()
   },
@@ -1087,7 +1094,7 @@ export default {
     async fetchRoles () {
       this.roles.processing = true
 
-      this.$SystemAPI.roleList().then(({ set: roles = [] }) => {
+      this.$SystemAPI.roleList({}, { cancelToken: this.cancelTokenSource.token }).then(({ set: roles = [] }) => {
         this.roles.options = roles.filter(({ meta }) => !(meta.context && meta.context.resourceTypes))
       }).finally(() => {
         this.roles.processing = false
@@ -1259,6 +1266,10 @@ export default {
       const pageStateChange = !isEqual(this.page, this.initialPageState)
 
       next((layoutsStateChange || pageStateChange) ? window.confirm(this.$t('unsavedChanges')) : true)
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel('abort-request')
     },
   },
 }

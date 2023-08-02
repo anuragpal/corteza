@@ -100,6 +100,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mapGetters } from 'vuex'
 import RecordToolbar from 'corteza-webapp-compose/src/components/Common/RecordToolbar'
 import users from 'corteza-webapp-compose/src/mixins/users'
@@ -138,6 +139,8 @@ export default {
         boundingRect: {},
         namespace: this.$attrs.namespace,
       },
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -217,6 +220,10 @@ export default {
     },
   },
 
+  beforeDestroy () {
+    this.abortRequests()
+  },
+
   created () {
     this.createBlocks()
   },
@@ -238,11 +245,15 @@ export default {
         const { moduleID, recordID } = this.$attrs
         const module = Object.freeze(this.getModuleByID(moduleID).clone())
         this.$ComposeAPI
-          .recordRead({ namespaceID, moduleID, recordID })
+          .recordRead({ namespaceID, moduleID, recordID }, { cancelToken: this.cancelTokenSource.token })
           .then(record => {
             this.record = new compose.Record(module, record)
           })
-          .catch(this.toastErrorHandler(this.$t('notification:record.loadFailed')))
+          .catch((e) => {
+            if (!axios.isCancel(e)) {
+              this.toastErrorHandler(this.$t('notification:record.loadFailed'))(e)
+            }
+          })
       }
     },
 
@@ -274,6 +285,10 @@ export default {
       this.$router.push({
         params: { ...this.$route.params, recordID },
       })
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel('abort-request')
     },
   },
 }

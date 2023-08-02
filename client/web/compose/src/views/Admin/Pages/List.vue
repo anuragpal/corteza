@@ -93,6 +93,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mapActions } from 'vuex'
 import PageTree from 'corteza-webapp-compose/src/components/Admin/Page/Tree'
 import { compose } from '@cortezaproject/corteza-js'
@@ -121,11 +122,16 @@ export default {
       tree: [],
       page: new compose.Page({ visible: true }),
       processing: false,
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
   created () {
     this.loadTree()
+  },
+
+  beforeDestroy () {
+    this.abortRequests()
   },
 
   methods: {
@@ -153,11 +159,19 @@ export default {
         return this.createPageLayout(pageLayout).then(() => {
           this.$router.push({ name: 'admin.pages.edit', params: { pageID } })
         })
-      }).catch(this.toastErrorHandler(this.$t('notification:page.saveFailed')))
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          this.toastErrorHandler(this.$t('notification:page.saveFailed'))(e)
+        }
+      })
     },
 
     handleReorder () {
       this.loadTree()
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel('abort-request')
     },
   },
 }

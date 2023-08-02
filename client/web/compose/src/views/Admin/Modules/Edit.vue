@@ -455,6 +455,7 @@
 <script>
 import { isEqual } from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
+import axios from 'axios'
 import draggable from 'vuedraggable'
 import FieldConfigurator from 'corteza-webapp-compose/src/components/ModuleFields/Configurator'
 import FieldRowEdit from 'corteza-webapp-compose/src/components/Admin/Module/FieldRowEdit'
@@ -529,6 +530,8 @@ export default {
       discoverySettings: {
         modal: false,
       },
+
+      cancelTokenSource: axios.CancelToken.source(),
     }
   },
 
@@ -682,7 +685,7 @@ export default {
 
             // Count existing records to see what we can do with this module
             this.$ComposeAPI
-              .recordList({ moduleID, namespaceID, limit: 1 })
+              .recordList({ moduleID, namespaceID, limit: 1 }, { cancelToken: this.cancelTokenSource.token })
               .then(({ set }) => { this.hasRecords = (set.length > 0) })
           })
         }
@@ -704,6 +707,10 @@ export default {
 
   beforeRouteLeave (to, from, next) {
     this.checkUnsavedModule(next)
+  },
+
+  beforeDestroy () {
+    this.abortRequests()
   },
 
   methods: {
@@ -853,6 +860,10 @@ export default {
         .finally(() => {
           this.processing = false
         })
+    },
+
+    abortRequests () {
+      this.cancelTokenSource.cancel('abort-request')
     },
   },
 }

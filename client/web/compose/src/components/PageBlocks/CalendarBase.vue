@@ -325,14 +325,14 @@ export default {
                 events = this.setEventColors(events, feed)
                 this.events.push(...events)
               })
-          }
-        }))
-          .finally(() => {
-            this.processing = false
-            this.refreshing = false
-            setTimeout(() => {
-              this.updateSize()
-            })
+        }
+      }))
+        .finally(() => {
+          this.processing = false
+          this.refreshing = false
+          setTimeout(() => {
+            this.updateSize()
+          })
         })
     },
 
