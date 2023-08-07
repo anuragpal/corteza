@@ -61,23 +61,27 @@ export default {
       return
     }
 
-    this.processing = true
-    return this.$ComposeAPI
-      .automationList(
-        { eventTypes: ['onManual'], excludeInvalid: true },
-        { cancelToken: this.cancelTokenSource.token },
-      )
-      .then(({ set = [] }) => {
-        this.automationScripts = set
-      })
-      .finally(() => {
-        this.processing = false
-      })
+    this.fetchAutomationLists()
   },
 
   methods: {
+    fetchAutomationLists () {
+      this.processing = true
+
+      return this.$ComposeAPI
+        .automationList(
+          { eventTypes: ['onManual'], excludeInvalid: true },
+          { cancelToken: this.cancelTokenSource.token },
+        )
+        .then(({ set = [] }) => {
+          this.automationScripts = set
+        })
+        .finally(() => {
+          this.processing = false
+        })
+    },
     abortRequests () {
-      this.cancelTokenSource.cancel(`cancel-record-list-request-${this.block.blockID}`)
+      this.cancelTokenSource.cancel(`abort-request-${this.block.blockID}`)
     },
   },
 }
