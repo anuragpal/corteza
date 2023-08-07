@@ -80,6 +80,7 @@ export default {
           this.processing = false
         })
     },
+
     abortRequests () {
       this.cancelTokenSource.cancel(`abort-request-${this.block.blockID}`)
     },
