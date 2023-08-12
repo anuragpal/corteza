@@ -1,0 +1,16 @@
+version: "3.3"
+
+services:
+  backend_api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./server:/go/src/api
+      - ./locale:/locale
+    # environment:
+    #   - "DB_DSN=postgres://postgres:postgres@192.168.29.86:5432/corteza_dev?sslmode=disable"
+    # env_file:
+    #   - ./server/.env
+    ports:
+      - 8080:80

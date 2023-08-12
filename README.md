@@ -69,6 +69,10 @@ Quick references:
 
 Refer to the [changelog](https://docs.cortezaproject.org/corteza-docs/2022.9/changelog/index.html) and the [upgrade guide](https://docs.cortezaproject.org/corteza-docs/2022.9/devops-guide/upgrade/index.html) to upgrade your Corteza instance.
 
+## Setting up dev instance
+
+
+
 ## Contributing
 
 Refer to the [Developer Guide/Corteza Server](https://docs.cortezaproject.org/corteza-docs/2022.9/developer-guide/corteza-server/index.html) document for details regarding the [development setup](https://docs.cortezaproject.org/corteza-docs/2022.9/developer-guide/corteza-server/index.html#_development_setup), the [project structure](https://docs.cortezaproject.org/corteza-docs/2022.9/developer-guide/corteza-server/structure.html), and the feature insight documents.

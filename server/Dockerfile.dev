@@ -1,0 +1,10 @@
+FROM golang:1.19-alpine
+RUN apk add --update tzdata bash wget curl git g++;
+RUN mkdir -p $$GOPATH/bin && go install github.com/cosmtrek/air@latest && go install github.com/eaburns/Watch@latest
+ADD . /go/src/api
+WORKDIR /go/src/api
+RUN go mod tidy
+# ENV LOCALE_LANGUAGES=en
+# ENV LOCALE_DEVELOPMENT_MODE=true
+# ENV ENVIRONMENT=dev
+CMD air -c .air.toml
